@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///plants.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.json.compact = False
-
+ 
 migrate = Migrate(app, db)
 db.init_app(app)
 
@@ -48,21 +48,22 @@ class PlantByID(Resource):
         return make_response(jsonify(plant), 200)
     
     def patch(self, id):
-        data = request.get_json()
-        plant = Plant.query.filter_by(id=id).first_or_404()
-
-        if 'is_in_stock' in data:
-            plant.is_in_stock = data['is_in_stock']
-
-        db.session.commit()
-        return make_response(plant.to_dict(), 200)
-
+            plant = Plant.query.filter_by(id=id).first_or_404()
+            data = request.get_json()
+    
+            if 'is_in_stock' in data:
+                plant.is_in_stock = data['is_in_stock']
+    
+            db.session.commit()
+    
+            return make_response(jsonify(plant.to_dict()), 200)
+    
     def delete(self, id):
-        plant = Plant.query.filter_by(id=id).first_or_404()
-        db.session.delete(plant)
-        db.session.commit()
-        return '', 204
-
+            plant = Plant.query.filter_by(id=id).first_or_404()
+            db.session.delete(plant)
+            db.session.commit()
+    
+            return make_response('', 204)
 
 
 api.add_resource(PlantByID, '/plants/<int:id>')
